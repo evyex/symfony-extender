@@ -1,5 +1,6 @@
 {
     "name": "evyex/symfony-extender",
+    "description": "Symfony bundle to must have features",
     "type": "symfony-bundle",
     "license": "MIT",
     "require": {
