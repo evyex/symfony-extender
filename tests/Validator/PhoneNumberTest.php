@@ -36,16 +36,23 @@ class PhoneNumberTest extends ConstraintValidatorTestCase
     }
 
     #[TestWith(['+059876355321'])]
-    #[TestWith([''])]
     #[TestWith(['0000'])]
+    #[TestWith(['-380986412832'])]
+    #[TestWith(['A380986412832'])]
     public function testInvalidPhoneNumber(string $data): void
     {
         $this->validator->validate($data, new PhoneNumber());
         $this->buildViolation('This value is not a valid phone number.')
-            ->setParameter('{{ value }}', '"'.$data.'"')
+            ->setParameter('{{ value }}', $data)
             ->setCode(PhoneNumber::INVALID_FORMAT_ERROR)
             ->assertRaised()
         ;
+    }
+
+    public function testEmptyString(): void
+    {
+        $this->validator->validate('', new PhoneNumber());
+        $this->assertEquals($this->context->getViolations()->count(), 1);
     }
 
     #[TestWith([100])]
