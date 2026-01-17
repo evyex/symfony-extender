@@ -9,7 +9,8 @@
     },
     "autoload": {
         "psr-4": {
-            "Evyex\\SymfonyExtender\\": "src/"
+            "Evyex\\SymfonyExtender\\": "src/",
+            "Evyex\\SymfonyExtender\\Tests\\": "tests/"
         }
     },
     "authors": [
@@ -30,7 +31,8 @@
         "test": "phpunit tests",
         "pipeline": [
             "@cs-fix",
-            "@stan-check"
+            "@stan-check",
+            "@test"
         ]
     }
 }
