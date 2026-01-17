@@ -27,7 +27,8 @@ class PhoneNumberValidator extends ConstraintValidator
             $this->context->buildViolation($constraint->message)
                 ->setParameter('{{ value }}', $this->formatValue($value))
                 ->setCode(PhoneNumber::INVALID_FORMAT_ERROR)
-                ->addViolation();
+                ->addViolation()
+            ;
         }
     }
 }
