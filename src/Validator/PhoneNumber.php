@@ -2,10 +2,9 @@
 
 namespace Evyex\SymfonyExtender\Validator;
 
-use Attribute;
 use Symfony\Component\Validator\Constraint;
 
-#[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_METHOD)]
+#[\Attribute(\Attribute::TARGET_PROPERTY | \Attribute::TARGET_METHOD)]
 class PhoneNumber extends Constraint
 {
     public const INVALID_FORMAT_ERROR = 'c6486fd0-3ab9-439a-b089-979096fa50d0';
