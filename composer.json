@@ -39,7 +39,8 @@
         "pipeline": [
             "@cs-fix",
             "@stan-check",
-            "@test"
+            "@test",
+            "@composer audit"
         ]
     }
 }
