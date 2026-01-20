@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Evyex\SymfonyExtender;
 
-use Evyex\SymfonyExtender\Security\ChangeIsGrantedListenerPriorityPass;
 use Evyex\SymfonyExtender\Security\IsGrantedAttributeListenerDecorator;
 use Evyex\SymfonyExtender\Validator\PhoneNumberValidator;
 use Evyex\SymfonyExtender\ValueResolver\MapEntityCollection\EntityCollectionValueResolver;
