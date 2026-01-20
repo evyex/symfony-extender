@@ -30,7 +30,7 @@ class MapEntityCollection extends ValueResolver
         private readonly bool $returnPaginator = true,
         private readonly ?NameConverterInterface $nameConverter = null,
     ) {
-        parent::__construct(EntityCollectionResolver::class);
+        parent::__construct(EntityCollectionValueResolver::class);
     }
 
     /**
