@@ -30,6 +30,7 @@ final class SymfonyExtenderBundle extends AbstractBundle
             ->register($class)
             ->addTag($tag)
             ->setAutoconfigured(true)
-            ->setAutowired(true);
+            ->setAutowired(true)
+        ;
     }
 }
