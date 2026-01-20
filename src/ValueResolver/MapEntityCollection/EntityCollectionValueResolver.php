@@ -19,7 +19,7 @@ use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 use Symfony\Component\HttpKernel\Event\ControllerArgumentsEvent;
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 use Symfony\Component\PropertyInfo\PropertyInfoExtractorInterface;
-use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class EntityCollectionValueResolver implements ValueResolverInterface
 {
@@ -27,7 +27,7 @@ class EntityCollectionValueResolver implements ValueResolverInterface
 
     public function __construct(
         private ManagerRegistry $registry,
-        private TokenInterface $token,
+        private TokenStorageInterface $tokenStorage,
         #[AutowireLocator(DoctrineFilterInterface::class)]
         private ContainerInterface $container,
         private PropertyInfoExtractorInterface $propertyInfoExtractor,
@@ -197,7 +197,7 @@ class EntityCollectionValueResolver implements ValueResolverInterface
         }
 
         if ($value instanceof Expression) {
-            return (new ExpressionLanguage())->evaluate($value, ['user' => $this->token->getUser()]);
+            return (new ExpressionLanguage())->evaluate($value, ['user' => $this->tokenStorage->getToken()?->getUser()]);
         }
 
         return $value;
