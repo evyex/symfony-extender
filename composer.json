@@ -12,7 +12,8 @@
         "symfony/serializer": "^6.4",
         "symfony/expression-language": "^6.4",
         "symfony/property-access": "^6.4",
-        "symfony/security-core": "^6.4"
+        "symfony/security-core": "^6.4",
+        "symfony/security-http": "^7.1"
     },
     "autoload": {
         "psr-4": {
