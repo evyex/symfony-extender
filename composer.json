@@ -13,7 +13,7 @@
         "symfony/expression-language": "^6.4",
         "symfony/property-access": "^6.4",
         "symfony/security-core": "^6.4",
-        "symfony/security-http": "^7.1"
+        "symfony/security-http": "^6.4|^7.1"
     },
     "autoload": {
         "psr-4": {
