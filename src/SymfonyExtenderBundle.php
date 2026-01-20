@@ -12,18 +12,24 @@ use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
 
 final class SymfonyExtenderBundle extends AbstractBundle
 {
+    private ContainerBuilder $containerBuilder;
+
     public function build(ContainerBuilder $container): void
     {
-        $container
-            ->register(EntityCollectionValueResolver::class)
-            ->addTag('controller.targeted_value_resolver')
-        ;
+        $this->containerBuilder = $container;
 
-        $container
-            ->register(PhoneNumberValidator::class)
-            ->addTag('validator.constraint_validator')
-        ;
+        $this->registerService(EntityCollectionValueResolver::class, 'controller.targeted_value_resolver');
+        $this->registerService(PhoneNumberValidator::class, 'validator.constraint_validator');
 
         $container->addCompilerPass(new ChangeIsGrantedListenerPriorityPass());
+    }
+
+    private function registerService(string $class, string $tag): void
+    {
+        $this->containerBuilder
+            ->register($class)
+            ->addTag($tag)
+            ->setAutoconfigured(true)
+            ->setAutowired(true);
     }
 }
