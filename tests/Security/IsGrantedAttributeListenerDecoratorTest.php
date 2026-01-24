@@ -16,9 +16,14 @@ use Symfony\Component\HttpKernel\KernelEvents;
 #[CoversClass(IsGrantedAttributeListenerDecorator::class)]
 class IsGrantedAttributeListenerDecoratorTest extends KernelTestCase
 {
+    public static function setUpBeforeClass(): void
+    {
+        self::bootKernel();
+    }
+
     public function testDecorates(): void
     {
-        $service = static::getContainer()->get('controller.is_granted_attribute_listener');
+        $service = self::getContainer()->get('controller.is_granted_attribute_listener');
         $this->assertInstanceOf(IsGrantedAttributeListenerDecorator::class, $service);
         $subscribedEvent = $service::getSubscribedEvents();
         $this->assertArrayHasKey(KernelEvents::CONTROLLER_ARGUMENTS, $subscribedEvent);
