@@ -34,7 +34,8 @@
         "symfony/test-pack": "^1.2",
         "symfony/framework-bundle": "^6.4|^7.4|^8.1",
         "symfony/security-bundle": "^7.4",
-        "doctrine/doctrine-bundle": "^2.18"
+        "doctrine/doctrine-bundle": "^2.18",
+        "symfony/var-exporter": "^8.0"
     },
     "scripts": {
         "cs-fix": "php-cs-fixer fix",

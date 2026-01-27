@@ -93,6 +93,9 @@ class EntityCollectionValueResolver implements ValueResolverInterface
                 $value = $this->propertyAccessor->getValue($queryStringObject, $property);
 
                 switch ($propertyMapping) {
+                    case MappingType::IGNORE:
+                        break;
+
                     case MappingType::LIMIT:
                         $limit = $value;
 
@@ -106,9 +109,6 @@ class EntityCollectionValueResolver implements ValueResolverInterface
                     case MappingType::PAGE:
                         $page = $value;
 
-                        break;
-
-                    case MappingType::IGNORE:
                         break;
 
                     default:
@@ -167,7 +167,7 @@ class EntityCollectionValueResolver implements ValueResolverInterface
 
     private function addCondition(QueryBuilder $queryBuilder, string $propertyName, mixed $value): void
     {
-        if (MappingType::IGNORE === $value) {
+        if (MappingType::IGNORE === $value || null === $value) {
             return;
         }
 
@@ -178,10 +178,14 @@ class EntityCollectionValueResolver implements ValueResolverInterface
             $expression = $expr->isNull($queryPropertyAlias);
         } elseif (MappingType::NOT_NULL === $value) {
             $expression = $expr->isNotNull($queryPropertyAlias);
-        } elseif (is_array($value)) {
-            $expression = $expr->in($queryPropertyAlias, $value);
         } else {
-            $expression = $expr->eq($queryPropertyAlias, $value);
+            $variableName = ':'.str_replace('.', '_', $queryPropertyAlias).'_'.random_int(1, 10000);
+            if (is_array($value)) {
+                $expression = $expr->in($queryPropertyAlias, $variableName);
+            } else {
+                $expression = $expr->eq($queryPropertyAlias, $variableName);
+            }
+            $queryBuilder->setParameter($variableName, $value);
         }
 
         $queryBuilder->andWhere($expression);
