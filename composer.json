@@ -17,7 +17,11 @@
     },
     "autoload": {
         "psr-4": {
-            "Evyex\\SymfonyExtender\\": "src/",
+            "Evyex\\SymfonyExtender\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
             "Evyex\\SymfonyExtender\\Tests\\": "tests/"
         }
     },
