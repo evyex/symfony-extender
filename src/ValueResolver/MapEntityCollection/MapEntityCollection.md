@@ -116,7 +116,6 @@ Optional `NameConverterInterface` for converting field names in `defaultOrdering
 ## Notes
 
 - `MapEntityCollection` is attached to a controller argument and is resolved internally by `EntityCollectionValueResolver`.
-- The attribute is repeatable (`IS_REPEATABLE`), but in one listener run only the first matching argument attribute is replaced.
 - Sorting direction constants:
   - `MapEntityCollection::ORDERING_ASC`
   - `MapEntityCollection::ORDERING_DESC`

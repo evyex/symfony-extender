@@ -27,7 +27,7 @@ class MapEntityCollectionTest extends TestCase
 
         $this->assertCount(1, $attributes);
         $this->assertSame(
-            \Attribute::TARGET_PARAMETER | \Attribute::IS_REPEATABLE,
+            \Attribute::TARGET_PARAMETER,
             $attributes[0]->getArguments()[0]
         );
     }
