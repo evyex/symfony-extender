@@ -40,17 +40,5 @@
         "symfony/security-bundle": "^6.4|^7.4|^8.1",
         "doctrine/doctrine-bundle": "^2.18",
         "symfony/var-exporter": "^6.4|^7.4|^8.1"
-    },
-    "scripts": {
-        "cs-fix": "php-cs-fixer fix",
-        "cs-check": "php-cs-fixer fix --dry-run",
-        "stan-check": "phpstan analyse",
-        "test": "phpunit tests",
-        "pipeline": [
-            "@cs-fix",
-            "@stan-check",
-            "@test",
-            "@composer audit"
-        ]
     }
 }

@@ -83,7 +83,7 @@ The project maintains high code quality standards:
 You can run the full pipeline locally:
 
 ```bash
-composer run pipeline
+make pipeline
 ```
 
 ## License
