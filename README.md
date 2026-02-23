@@ -45,6 +45,8 @@ class UserDTO
 
 Automatically resolves a collection of entities from request query parameters. This is highly useful for list endpoints with filtering, ordering, and pagination support.
 
+Detailed documentation: [`MapEntityCollection.md`](src/ValueResolver/MapEntityCollection/MapEntityCollection.md).
+
 **Usage in Controller:**
 
 ```php
