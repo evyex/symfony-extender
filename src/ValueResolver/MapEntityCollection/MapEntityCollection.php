@@ -7,7 +7,7 @@ namespace Evyex\SymfonyExtender\ValueResolver\MapEntityCollection;
 use Symfony\Component\HttpKernel\Attribute\ValueResolver;
 use Symfony\Component\Serializer\NameConverter\NameConverterInterface;
 
-#[\Attribute(\Attribute::TARGET_PARAMETER | \Attribute::IS_REPEATABLE)]
+#[\Attribute(\Attribute::TARGET_PARAMETER)]
 class MapEntityCollection extends ValueResolver
 {
     public const ORDERING_ASC = 'ASC';
