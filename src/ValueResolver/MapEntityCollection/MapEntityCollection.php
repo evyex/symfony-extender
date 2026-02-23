@@ -14,6 +14,8 @@ class MapEntityCollection extends ValueResolver
     public const ORDERING_DESC = 'DESC';
 
     /**
+     * @see MapEntityCollection.md Full usage guide and parameter reference.
+     *
      * @param class-string                                          $class
      * @param class-string<DoctrineFilterInterface>[]               $filters
      * @param array<string, self::ORDERING_ASC|self::ORDERING_DESC> $defaultOrdering
