@@ -33,13 +33,13 @@ jobs:
       run: composer install --prefer-dist --no-progress
 
     - name: CS fixer check
-      run: composer cs-check
+      run: make cs-check
 
     - name: PHP stan check
-      run: composer stan-check
+      run: make stan-check
 
     - name: Run test suite
-      run: composer test
+      run: make test
 
     - name: Run security vulnerability
       run: composer audit
