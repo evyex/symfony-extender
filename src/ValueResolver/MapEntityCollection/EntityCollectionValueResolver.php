@@ -17,6 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Controller\ValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 use Symfony\Component\HttpKernel\Event\ControllerArgumentsEvent;
+use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 use Symfony\Component\PropertyInfo\PropertyInfoExtractorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
@@ -97,17 +98,17 @@ class EntityCollectionValueResolver implements ValueResolverInterface
                         break;
 
                     case MappingType::LIMIT:
-                        $limit = $value;
+                        $limit = $this->asInt($value);
 
                         break;
 
                     case MappingType::OFFSET:
-                        $offset = $value;
+                        $offset = $this->asInt($value);
 
                         break;
 
                     case MappingType::PAGE:
-                        $page = $value;
+                        $page = $this->asInt($value);
 
                         break;
 
@@ -116,16 +117,15 @@ class EntityCollectionValueResolver implements ValueResolverInterface
                 }
             }
 
-            if (is_integer($limit)) {
-                $queryBuilder->setMaxResults($limit);
-            }
+            if (null !== $page || null !== $offset) {
+                if (!$limit) {
+                    throw new UnprocessableEntityHttpException('The "limit" parameter is required when using "page" or "offset".');
+                }
 
-            if (is_integer($offset)) {
-                $queryBuilder->setFirstResult($offset);
-            }
-
-            if (is_integer($page) && is_integer($limit)) {
-                $queryBuilder->setFirstResult(($page - 1) * $limit);
+                $queryBuilder
+                    ->setMaxResults($limit)
+                    ->setFirstResult($offset ?? ($page - 1) * $limit)
+                ;
             }
         }
 
@@ -210,5 +210,21 @@ class EntityCollectionValueResolver implements ValueResolverInterface
     private function getQueryProperty(string $property): string
     {
         return sprintf('%s.%s', self::QUERY_ROOT_ALIAS, $property);
+    }
+
+    private function asInt(mixed $value): ?int
+    {
+        if (null === $value) {
+            return null;
+        }
+
+        if (is_numeric($value)) {
+            $intValue = (int) $value;
+            if ($intValue == $value) {
+                return $intValue;
+            }
+        }
+
+        throw new UnprocessableEntityHttpException('Pagination parameter must be an integer.');
     }
 }
