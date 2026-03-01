@@ -44,7 +44,7 @@ public function list(
     ProductListQuery $query,
     #[MapEntityCollection(
         class: Product::class,
-        queryString: 'query',
+        queryObject: 'query',
         queryMapping: [
             'limit' => MappingType::LIMIT,
             'page' => MappingType::PAGE,
@@ -63,7 +63,7 @@ public function list(
 
 `class-string` of the target Doctrine entity for which the `QueryBuilder` is created.
 
-### `queryString`
+### `queryObject`
 
 The name of a controller argument (usually a DTO) whose properties are used for filtering and pagination.
 
@@ -96,7 +96,7 @@ Supported values:
 
 `array<class-string<DoctrineFilterInterface>>` with a list of filter services.
 
-Each filter receives `QueryBuilder`, the current attribute, `Request`, and the object from `queryString`, and can modify the query as needed.
+Each filter receives `QueryBuilder`, the current attribute, `Request`, and the object from `queryObject`, and can modify the query as needed.
 
 ### `defaultOrdering`
 
