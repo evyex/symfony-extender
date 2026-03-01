@@ -39,7 +39,7 @@ class MapEntityCollectionTest extends TestCase
         $this->assertSame(EntityCollectionValueResolver::class, $attribute->resolver);
         $this->assertFalse($attribute->disabled);
         $this->assertSame('App\Entity\Product', $attribute->getClass());
-        $this->assertNull($attribute->getQueryString());
+        $this->assertNull($attribute->getQueryObject());
         $this->assertSame([], $attribute->getQueryMapping());
         $this->assertSame([], $attribute->getDoctrineParameters());
         $this->assertSame([], $attribute->getFilters());
@@ -54,7 +54,7 @@ class MapEntityCollectionTest extends TestCase
 
         $attribute = new MapEntityCollection(
             class: 'App\Entity\Order',
-            queryString: 'query',
+            queryObject: 'query',
             queryMapping: ['page' => MappingType::PAGE, 'size' => MappingType::LIMIT],
             doctrineParameters: ['status' => 'active'],
             filters: [DummyDoctrineFilter::class],
@@ -64,7 +64,7 @@ class MapEntityCollectionTest extends TestCase
         );
 
         $this->assertSame('App\Entity\Order', $attribute->getClass());
-        $this->assertSame('query', $attribute->getQueryString());
+        $this->assertSame('query', $attribute->getQueryObject());
         $this->assertSame(['page' => MappingType::PAGE, 'size' => MappingType::LIMIT], $attribute->getQueryMapping());
         $this->assertSame(['status' => 'active'], $attribute->getDoctrineParameters());
         $this->assertSame([DummyDoctrineFilter::class], $attribute->getFilters());

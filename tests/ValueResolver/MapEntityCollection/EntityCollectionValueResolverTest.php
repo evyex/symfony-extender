@@ -265,7 +265,7 @@ class EntityCollectionValueResolverTest extends TestCase
         $queryInput = new MapEntityCollectionQueryInput(page: 2, size: 20, status: 'active', ignored: 'skip');
         $attribute = new MapEntityCollection(
             class: 'App\Entity\Product',
-            queryString: 'query',
+            queryObject: 'query',
             queryMapping: [
                 'page' => MappingType::PAGE,
                 'size' => MappingType::LIMIT,

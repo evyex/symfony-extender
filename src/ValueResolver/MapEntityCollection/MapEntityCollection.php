@@ -24,7 +24,7 @@ class MapEntityCollection extends ValueResolver
      */
     public function __construct(
         private readonly string $class,
-        private readonly ?string $queryString = null,
+        private readonly ?string $queryObject = null,
         private readonly array $queryMapping = [],
         private readonly array $doctrineParameters = [],
         private readonly array $filters = [],
@@ -43,9 +43,9 @@ class MapEntityCollection extends ValueResolver
         return $this->class;
     }
 
-    public function getQueryString(): ?string
+    public function getQueryObject(): ?string
     {
-        return $this->queryString;
+        return $this->queryObject;
     }
 
     /**

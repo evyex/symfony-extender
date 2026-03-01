@@ -76,8 +76,8 @@ class EntityCollectionValueResolver implements ValueResolverInterface
         $this->doctrineParameterProcessing($queryBuilder, $attribute->getDoctrineParameters(), $event);
 
         /** @var null|object $queryStringObject */
-        $queryStringObject = $attribute->getQueryString()
-            ? $event->getNamedArguments()[$attribute->getQueryString()] : null;
+        $queryStringObject = $attribute->getQueryObject()
+            ? $event->getNamedArguments()[$attribute->getQueryObject()] : null;
 
         foreach ($attribute->getFilters() as $filter) {
             /** @var DoctrineFilterInterface $queryFilter */
