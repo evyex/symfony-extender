@@ -117,16 +117,15 @@ class EntityCollectionValueResolver implements ValueResolverInterface
                 }
             }
 
-            if (is_integer($limit)) {
-                $queryBuilder->setMaxResults($limit);
-            }
+            if (null !== $page || null !== $offset) {
+                if (!$limit) {
+                    throw new UnprocessableEntityHttpException('The "limit" parameter is required when using "page" or "offset".');
+                }
 
-            if (is_integer($offset)) {
-                $queryBuilder->setFirstResult($offset);
-            }
-
-            if (is_integer($page) && is_integer($limit)) {
-                $queryBuilder->setFirstResult(($page - 1) * $limit);
+                $queryBuilder
+                    ->setMaxResults($limit)
+                    ->setFirstResult($offset ?? ($page - 1) * $limit)
+                ;
             }
         }
 
