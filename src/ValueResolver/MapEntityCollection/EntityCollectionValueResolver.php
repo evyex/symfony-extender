@@ -157,11 +157,9 @@ class EntityCollectionValueResolver implements ValueResolverInterface
                 throw new \LogicException(sprintf('Doctrine parameter "%s" is not supported.', $key));
             }
 
-            $this->addCondition(
-                queryBuilder: $queryBuilder,
-                propertyName: $key,
-                value: $this->buildValue($value, $event->getRequest()->attributes->all())
-            );
+            /** @var array<string, mixed> $attributes */
+            $attributes = $event->getRequest()->attributes->all();
+            $this->addCondition($queryBuilder, $key, $this->buildValue($value, $attributes));
         }
     }
 
