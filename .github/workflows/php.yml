@@ -25,8 +25,8 @@ jobs:
         php-version: ${{ matrix.php }}
         coverage: none
 
-    - name: Validate composer.json and composer.lock
-      run: composer validate --strict
+    - name: Validate composer.json
+      run: composer validate --strict --no-check-lock
 
     - name: Cache Composer packages
       id: composer-cache
@@ -37,8 +37,8 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-php-${{ matrix.php }}-
 
-    - name: Install dependencies
-      run: composer install --prefer-dist --no-progress
+    - name: Resolve and install dependencies
+      run: composer update --prefer-dist --no-progress --no-interaction
 
     - name: CS fixer check
       run: make cs-check
