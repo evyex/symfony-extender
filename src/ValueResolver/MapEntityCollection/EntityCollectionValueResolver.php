@@ -199,7 +199,7 @@ class EntityCollectionValueResolver implements ValueResolverInterface
         }
 
         if ($value instanceof Expression) {
-            return (new ExpressionLanguage())->evaluate($value, ['user' => $this->tokenStorage->getToken()?->getUser()]);
+            return new ExpressionLanguage()->evaluate($value, ['user' => $this->tokenStorage->getToken()?->getUser()]);
         }
 
         return $value;
