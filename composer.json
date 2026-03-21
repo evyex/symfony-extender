@@ -31,9 +31,11 @@
             "email": "evgenijvy@gmail.com"
         }
     ],
-    "ai-doc": {
-        "path": "README.md",
-        "load_for": "Entity collection resolver, phone validation"
+    "extra": {
+        "ai-doc": {
+            "path": "README.md",
+            "load_for": "Entity collection resolver, phone validation"
+        }
     },
     "require-dev": {
         "phpunit/phpunit": ">=10",
