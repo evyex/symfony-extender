@@ -44,6 +44,7 @@ class SymfonyExtenderBundleConfigurationTest extends TestCase
 
     /**
      * @param array<string, mixed> $values
+     *
      * @return array<string, mixed>
      */
     private function processConfig(array $values): array

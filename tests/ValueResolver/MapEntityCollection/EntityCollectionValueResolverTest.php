@@ -403,7 +403,9 @@ class EntityCollectionValueResolverTest extends TestCase
         $propertyAccessor = $this->createStub(PropertyAccessorInterface::class);
         $propertyAccessor->method('getValue')->willReturnCallback(static fn (object $o, string $p) => $o->{$p});
 
-        $queryInput = new class { public int $page = 2; };
+        $queryInput = new class {
+            public int $page = 2;
+        };
         $attribute = new MapEntityCollection(
             class: 'App\Entity\Product',
             queryObject: 'query',
@@ -458,7 +460,9 @@ class EntityCollectionValueResolverTest extends TestCase
         $propertyAccessor = $this->createStub(PropertyAccessorInterface::class);
         $propertyAccessor->method('getValue')->willReturnCallback(static fn (object $o, string $p) => $o->{$p});
 
-        $queryInput = new class { public int $page = 2; };
+        $queryInput = new class {
+            public int $page = 2;
+        };
         $attribute = new MapEntityCollection(
             class: 'App\Entity\Product',
             queryObject: 'query',
