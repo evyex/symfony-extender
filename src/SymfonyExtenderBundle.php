@@ -7,6 +7,7 @@ namespace Evyex\SymfonyExtender;
 use Evyex\SymfonyExtender\Security\IsGrantedAttributeListenerDecorator;
 use Evyex\SymfonyExtender\Validator\PhoneNumberValidator;
 use Evyex\SymfonyExtender\ValueResolver\MapEntityCollection\EntityCollectionValueResolver;
+use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
@@ -20,10 +21,17 @@ final class SymfonyExtenderBundle extends AbstractBundle
 
     public function configure(DefinitionConfigurator $definition): void
     {
-        $definition->rootNode()->children()
-            ->arrayNode(self::SECTION_ENTITY_COLLECTION)->addDefaultsIfNotSet()->children()
-            ->integerNode(self::KEY_DEFAULT_LIMIT)->defaultValue(self::VALUE_DEFAULT_LIMIT)->min(1)->end()
-            ->end()->end()->end()
+        $rootNode = $definition->rootNode();
+        if (!$rootNode instanceof ArrayNodeDefinition) {
+            throw new \UnexpectedValueException(
+                sprintf('Expected "%s", got "%s".', ArrayNodeDefinition::class, $rootNode::class)
+            );
+        }
+
+        $entityCollection = $rootNode->children()->arrayNode(self::SECTION_ENTITY_COLLECTION);
+        $entityCollection->addDefaultsIfNotSet();
+        $entityCollection->children()
+            ->integerNode(self::KEY_DEFAULT_LIMIT)->defaultValue(self::VALUE_DEFAULT_LIMIT)->min(1)
         ;
     }
 
