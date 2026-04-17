@@ -26,6 +26,11 @@
             "Evyex\\SymfonyExtender\\Tests\\": "tests/"
         }
     },
+    "extra": {
+        "symfony": {
+            "require": "6.4.*"
+        }
+    },
     "authors": [
         {
             "name": "Evgenij Yurchenko",
