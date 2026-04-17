@@ -9,6 +9,7 @@ use Evyex\SymfonyExtender\Validator\PhoneNumberValidator;
 use Evyex\SymfonyExtender\ValueResolver\MapEntityCollection\EntityCollectionValueResolver;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
+use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
@@ -25,13 +26,8 @@ final class SymfonyExtenderBundle extends AbstractBundle
 
     public function configure(DefinitionConfigurator $definition): void
     {
+        /** @var ArrayNodeDefinition $rootNode */
         $rootNode = $definition->rootNode();
-        // Backward compatibility with php 8.1
-        if (!$rootNode instanceof ArrayNodeDefinition) {
-            throw new \UnexpectedValueException(
-                sprintf('Expected "%s", got "%s".', ArrayNodeDefinition::class, $rootNode::class)
-            );
-        }
 
         $this->createNode($rootNode, self::SECTION_ENTITY_COLLECTION)
             ->integerNode(self::KEY_DEFAULT_LIMIT)->min(1)->defaultValue(self::VALUE_DEFAULT_LIMIT)
