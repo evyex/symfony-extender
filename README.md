@@ -23,6 +23,17 @@ return [
 ];
 ```
 
+## Configuration
+
+You can configure the bundle in `config/packages/symfony_extender.yaml`:
+
+```yaml
+symfony_extender:
+    entity_collection:
+        # Default paginator limit when no explicit limit is provided (min: 1)
+        default_limit: 20  
+```
+
 ## Features
 
 ### 1. Phone Number Validator
