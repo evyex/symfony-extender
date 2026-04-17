@@ -15,7 +15,8 @@
         "symfony/property-access": "^6.4",
         "symfony/security-core": "^6.4",
         "symfony/security-http": "^6.4.15",
-        "symfony/property-info": "^6.4"
+        "symfony/property-info": "^6.4",
+        "symfony/config": "^6.4"
     },
     "autoload": {
         "psr-4": {
@@ -25,11 +26,6 @@
     "autoload-dev": {
         "psr-4": {
             "Evyex\\SymfonyExtender\\Tests\\": "tests/"
-        }
-    },
-    "extra": {
-        "symfony": {
-            "require": "6.4.*"
         }
     },
     "authors": [
