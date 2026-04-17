@@ -32,7 +32,8 @@ class EntityCollectionValueResolver implements ValueResolverInterface
         #[AutowireLocator(DoctrineFilterInterface::class)]
         private ContainerInterface $container,
         private PropertyInfoExtractorInterface $propertyInfoExtractor,
-        private PropertyAccessorInterface $propertyAccessor
+        private PropertyAccessorInterface $propertyAccessor,
+        private int $defaultLimit,
     ) {}
 
     /**
@@ -118,9 +119,7 @@ class EntityCollectionValueResolver implements ValueResolverInterface
             }
 
             if (null !== $page || null !== $offset) {
-                if (!$limit) {
-                    throw new UnprocessableEntityHttpException('The "limit" parameter is required when using "page" or "offset".');
-                }
+                $limit ??= $this->defaultLimit;
 
                 $queryBuilder
                     ->setMaxResults($limit)
