@@ -8,6 +8,7 @@ use Evyex\SymfonyExtender\Security\IsGrantedAttributeListenerDecorator;
 use Evyex\SymfonyExtender\Validator\PhoneNumberValidator;
 use Evyex\SymfonyExtender\ValueResolver\MapEntityCollection\EntityCollectionValueResolver;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
+use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
@@ -19,24 +20,25 @@ final class SymfonyExtenderBundle extends AbstractBundle
     public const KEY_DEFAULT_LIMIT = 'default_limit';
     public const VALUE_DEFAULT_LIMIT = 20;
 
+    public const SECTION_IS_GRANTED_LISTENER = 'is_granted_listener';
+    public const KEY_ENABLED = 'enabled';
+
     public function configure(DefinitionConfigurator $definition): void
     {
+        /** @var ArrayNodeDefinition $rootNode */
         $rootNode = $definition->rootNode();
-        if (!$rootNode instanceof ArrayNodeDefinition) {
-            throw new \UnexpectedValueException(
-                sprintf('Expected "%s", got "%s".', ArrayNodeDefinition::class, $rootNode::class)
-            );
-        }
 
-        $entityCollection = $rootNode->children()->arrayNode(self::SECTION_ENTITY_COLLECTION);
-        $entityCollection->addDefaultsIfNotSet();
-        $entityCollection->children()
-            ->integerNode(self::KEY_DEFAULT_LIMIT)->defaultValue(self::VALUE_DEFAULT_LIMIT)->min(1)
+        $this->createNode($rootNode, self::SECTION_ENTITY_COLLECTION)
+            ->integerNode(self::KEY_DEFAULT_LIMIT)->min(1)->defaultValue(self::VALUE_DEFAULT_LIMIT)
         ;
+        $this->createNode($rootNode, self::SECTION_IS_GRANTED_LISTENER)->booleanNode(self::KEY_ENABLED)->defaultTrue();
     }
 
     /**
-     * @param array{entity_collection: array{default_limit: int}} $config
+     * @param array{
+     *     entity_collection: array{default_limit: int},
+     *     is_granted_listener: array{enabled: bool}
+     *     } $config
      */
     public function loadExtension(array $config, ContainerConfigurator $container, ContainerBuilder $builder): void
     {
@@ -47,21 +49,29 @@ final class SymfonyExtenderBundle extends AbstractBundle
             ->autowire()
             ->arg('$defaultLimit', $config[self::SECTION_ENTITY_COLLECTION][self::KEY_DEFAULT_LIMIT])
         ;
+
+        if ($config[self::SECTION_IS_GRANTED_LISTENER][self::KEY_ENABLED]) {
+            $container->services()
+                ->set(IsGrantedAttributeListenerDecorator::class)
+                ->tag('security.listener.is_granted_attribute')
+                ->autoconfigure()
+                ->autowire()
+            ;
+        }
     }
 
     public function build(ContainerBuilder $container): void
     {
-        $this->registerService($container, PhoneNumberValidator::class, 'validator.constraint_validator');
-        $this->registerService($container, IsGrantedAttributeListenerDecorator::class, 'security.listener.is_granted_attribute');
-    }
-
-    private function registerService(ContainerBuilder $container, string $class, string $tag): void
-    {
         $container
-            ->register($class)
-            ->addTag($tag)
+            ->register(PhoneNumberValidator::class)
+            ->addTag('validator.constraint_validator')
             ->setAutoconfigured(true)
             ->setAutowired(true)
         ;
+    }
+
+    private function createNode(ArrayNodeDefinition $rootNode, string $name): NodeBuilder
+    {
+        return $rootNode->children()->arrayNode($name)->addDefaultsIfNotSet()->children();
     }
 }
