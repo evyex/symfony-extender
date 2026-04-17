@@ -371,12 +371,128 @@ class EntityCollectionValueResolverTest extends TestCase
         $resolver->mapEntityCollection($event);
     }
 
+    public function testUsesDefaultLimitWhenPageProvidedWithoutExplicitLimit(): void
+    {
+        $query = $this->createStub(Query::class);
+        $query->method('getResult')->willReturn([]);
+
+        $queryBuilder = $this->getMockBuilder(QueryBuilder::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['setMaxResults', 'setFirstResult', 'getDQLPart', 'getQuery'])
+            ->getMock()
+        ;
+        $queryBuilder->expects($this->once())->method('setMaxResults')->with(20)->willReturnSelf();
+        $queryBuilder->expects($this->once())->method('setFirstResult')->with(20)->willReturnSelf();
+        $queryBuilder->expects($this->once())->method('getDQLPart')->with('orderBy')->willReturn(['existing_order']);
+        $queryBuilder->method('getQuery')->willReturn($query);
+
+        $registry = $this->createMock(ManagerRegistry::class);
+        $registry
+            ->expects($this->once())
+            ->method('getManagerForClass')
+            ->willReturn($this->createEntityManagerWithRepositoryQueryBuilder($queryBuilder))
+        ;
+
+        $propertyInfoExtractor = $this->createMock(PropertyInfoExtractorInterface::class);
+        $propertyInfoExtractor
+            ->expects($this->once())
+            ->method('getProperties')
+            ->willReturn(['page'])
+        ;
+
+        $propertyAccessor = $this->createStub(PropertyAccessorInterface::class);
+        $propertyAccessor->method('getValue')->willReturnCallback(static fn (object $o, string $p) => $o->{$p});
+
+        $queryInput = new class {
+            public int $page = 2;
+        };
+        $attribute = new MapEntityCollection(
+            class: 'App\Entity\Product',
+            queryObject: 'query',
+            queryMapping: ['page' => MappingType::PAGE],
+            returnPaginator: false,
+        );
+        $event = $this->createControllerArgumentsEvent(
+            arguments: [$attribute, $queryInput],
+            controller: static function (array $collection, object $query): void {},
+        );
+
+        $resolver = $this->createResolver(
+            registry: $registry,
+            tokenStorage: $this->createStub(TokenStorageInterface::class),
+            container: $this->createStub(ContainerInterface::class),
+            propertyInfoExtractor: $propertyInfoExtractor,
+            propertyAccessor: $propertyAccessor,
+        );
+
+        $resolver->mapEntityCollection($event);
+    }
+
+    public function testUsesConfiguredDefaultLimit(): void
+    {
+        $query = $this->createStub(Query::class);
+        $query->method('getResult')->willReturn([]);
+
+        $queryBuilder = $this->getMockBuilder(QueryBuilder::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['setMaxResults', 'setFirstResult', 'getDQLPart', 'getQuery'])
+            ->getMock()
+        ;
+        $queryBuilder->expects($this->once())->method('setMaxResults')->with(50)->willReturnSelf();
+        $queryBuilder->expects($this->once())->method('setFirstResult')->with(50)->willReturnSelf();
+        $queryBuilder->expects($this->once())->method('getDQLPart')->with('orderBy')->willReturn(['existing_order']);
+        $queryBuilder->method('getQuery')->willReturn($query);
+
+        $registry = $this->createMock(ManagerRegistry::class);
+        $registry
+            ->expects($this->once())
+            ->method('getManagerForClass')
+            ->willReturn($this->createEntityManagerWithRepositoryQueryBuilder($queryBuilder))
+        ;
+
+        $propertyInfoExtractor = $this->createMock(PropertyInfoExtractorInterface::class);
+        $propertyInfoExtractor
+            ->expects($this->once())
+            ->method('getProperties')
+            ->willReturn(['page'])
+        ;
+
+        $propertyAccessor = $this->createStub(PropertyAccessorInterface::class);
+        $propertyAccessor->method('getValue')->willReturnCallback(static fn (object $o, string $p) => $o->{$p});
+
+        $queryInput = new class {
+            public int $page = 2;
+        };
+        $attribute = new MapEntityCollection(
+            class: 'App\Entity\Product',
+            queryObject: 'query',
+            queryMapping: ['page' => MappingType::PAGE],
+            returnPaginator: false,
+        );
+        $event = $this->createControllerArgumentsEvent(
+            arguments: [$attribute, $queryInput],
+            controller: static function (array $collection, object $query): void {},
+        );
+
+        $resolver = $this->createResolver(
+            registry: $registry,
+            tokenStorage: $this->createStub(TokenStorageInterface::class),
+            container: $this->createStub(ContainerInterface::class),
+            propertyInfoExtractor: $propertyInfoExtractor,
+            propertyAccessor: $propertyAccessor,
+            defaultLimit: 50,
+        );
+
+        $resolver->mapEntityCollection($event);
+    }
+
     private function createResolver(
         ManagerRegistry $registry,
         TokenStorageInterface $tokenStorage,
         ContainerInterface $container,
         PropertyInfoExtractorInterface $propertyInfoExtractor,
         PropertyAccessorInterface $propertyAccessor,
+        int $defaultLimit = 20,
     ): EntityCollectionValueResolver {
         return new EntityCollectionValueResolver(
             registry: $registry,
@@ -384,6 +500,7 @@ class EntityCollectionValueResolverTest extends TestCase
             container: $container,
             propertyInfoExtractor: $propertyInfoExtractor,
             propertyAccessor: $propertyAccessor,
+            defaultLimit: $defaultLimit,
         );
     }
 
