@@ -1,9 +1,5 @@
 # Symfony Extender Bundle
 
-[![Latest Version](https://img.shields.io/github/release/evyex/symfony-extender.svg?style=flat-square)](https://github.com/evyex/symfony-extender/releases)
-[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE)
-[![Build Status](https://github.com/evyex/symfony-extender/actions/workflows/php.yml/badge.svg)](https://github.com/evyex/symfony-extender/actions)
-
 A Symfony bundle that provides commonly used features and utilities to enhance your development workflow.
 
 ## Installation
@@ -30,8 +26,9 @@ You can configure the bundle in `config/packages/symfony_extender.yaml`:
 ```yaml
 symfony_extender:
     entity_collection:
-        # Default paginator limit when no explicit limit is provided (min: 1)
-        default_limit: 20  
+        default_limit: 20      # Default paginator limit when no explicit limit is provided (min: 1)
+    is_granted_listener:
+        enabled: true          # Set to false to disable grant execution after Map** resolving
 ```
 
 ## Features
@@ -83,6 +80,8 @@ Decorates the default Symfony `controller.is_granted_attribute_listener` to ensu
 
 This works transparently in the background, ensuring that `#[IsGranted]` attributes on controller arguments are handled correctly before the value resolvers are called.
 
+Can be disabled via configuration if the decorator conflicts with your setup (see [Configuration](#configuration)).
+
 ## Quality Assurance
 
 The project maintains high code quality standards:
@@ -90,12 +89,6 @@ The project maintains high code quality standards:
 - **Static Analysis**: PHPStan
 - **Coding Style**: PHP-CS-Fixer
 - **Testing**: PHPUnit
-
-You can run the full pipeline locally:
-
-```bash
-make pipeline
-```
 
 ## License
 
