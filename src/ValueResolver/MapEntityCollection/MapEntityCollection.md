@@ -74,7 +74,7 @@ If `null`, DTO properties are not processed.
 `array<string, string>` with rules for DTO property handling.
 
 - `MappingType::IGNORE` - ignore the property.
-- `MappingType::LIMIT` - sets `setMaxResults(...)`.
+- `MappingType::LIMIT` - sets `setMaxResults(...)` (default for paginator: `20`).
 - `MappingType::OFFSET` - sets `setFirstResult(...)`.
 - `MappingType::PAGE` - together with `LIMIT`, computes offset as `(page - 1) * limit`.
 - if the key exists but the value is not a special mapping type, it behaves like a regular filter field.
@@ -119,3 +119,4 @@ Optional `NameConverterInterface` for converting field names in `defaultOrdering
 - Sorting direction constants:
   - `MapEntityCollection::ORDERING_ASC`
   - `MapEntityCollection::ORDERING_DESC`
+- When `PAGE` or `OFFSET` is used without an explicit `LIMIT` property, the bundle's `entity_collection.default_limit` configuration value is used as the limit (default: `20`). Configure it in `config/packages/symfony_extender.yaml`.
