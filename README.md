@@ -29,6 +29,9 @@ symfony_extender:
         default_limit: 20      # Default paginator limit when no explicit limit is provided (min: 1)
     is_granted_listener:
         enabled: true          # Set to false to disable grant execution after Map** resolving
+    phone_number:
+        clean_string: true     # Strip spaces, hyphens, and parentheses before validation
+        pattern: '/^\+?[1-9][0-9]{9,14}$/'  # Regex used to validate the phone number
 ```
 
 ## Features
@@ -47,6 +50,14 @@ class UserDTO
     #[PhoneNumber(message: 'Please provide a valid phone number.')]
     public string $phone;
 }
+```
+
+The default regex accepts international numbers with an optional `+` prefix, 10–15 digits total, and allows formatting characters (spaces, hyphens, parentheses) that are stripped before matching. All defaults can be changed globally via bundle configuration or per-field via the attribute:
+
+```php
+// Override pattern for this field only, keeping global clean_string setting
+#[PhoneNumber(pattern: '/^\+380[0-9]{9}$/')]
+public string $ukrainianPhone;
 ```
 
 ### 2. MapEntityCollection Value Resolver
