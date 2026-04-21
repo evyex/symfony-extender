@@ -39,7 +39,7 @@ final class SymfonyExtenderBundle extends AbstractBundle
 
         $node = $this->createNode($rootNode, self::SECTION_PHONE_NUMBER);
         $node->booleanNode(self::KEY_CLEAN_STRING)->defaultTrue();
-        $node->stringNode(self::KEY_PATTERN)->defaultValue(PhoneNumberValidator::DEFAULT_PATTERN);
+        $node->scalarNode(self::KEY_PATTERN)->defaultValue(PhoneNumberValidator::DEFAULT_PATTERN);
     }
 
     /**

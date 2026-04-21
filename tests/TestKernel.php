@@ -35,9 +35,17 @@ class TestKernel extends Kernel
                     'framework',
                     [
                         'test' => true,
+                        'http_method_override' => false,
+                        'handle_all_throwables' => true,
                         'router' => [
                             'resource' => false,
                             'type' => 'service',
+                        ],
+                        'validation' => [
+                            'email_validation_mode' => 'html5',
+                        ],
+                        'php_errors' => [
+                            'log' => true,
                         ],
                     ]
                 );
