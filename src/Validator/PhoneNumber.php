@@ -14,11 +14,13 @@ class PhoneNumber extends Constraint
     ];
 
     public string $message = 'This value is not a valid phone number.';
+    public ?string $pattern = null;
 
-    public function __construct(?string $message = null, ?array $groups = null, mixed $payload = null)
+    public function __construct(?string $message = null, ?string $pattern = null, ?array $groups = null, mixed $payload = null)
     {
         parent::__construct(groups: $groups, payload: $payload);
 
         $this->message = $message ?? $this->message;
+        $this->pattern = $pattern;
     }
 }
