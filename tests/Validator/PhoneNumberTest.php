@@ -66,6 +66,57 @@ class PhoneNumberTest extends ConstraintValidatorTestCase
         $this->validator->validate($data, new PhoneNumber());
     }
 
+    #[TestWith(['+38(098) 641-28-32'])]
+    #[TestWith(['+420 778 420 000'])]
+    public function testCleanStringDisabledRejectsFormattedNumber(string $data): void
+    {
+        $validator = new PhoneNumberValidator(cleanString: false);
+        $validator->initialize($this->context);
+
+        $validator->validate($data, new PhoneNumber());
+
+        $this->assertEquals(1, $this->context->getViolations()->count());
+    }
+
+    public function testCleanStringDisabledAcceptsPlainNumber(): void
+    {
+        $validator = new PhoneNumberValidator(cleanString: false);
+        $validator->initialize($this->context);
+
+        $validator->validate('+380986412832', new PhoneNumber());
+
+        $this->assertNoViolation();
+    }
+
+    public function testCustomPatternFromConstructor(): void
+    {
+        $validator = new PhoneNumberValidator(pattern: '/^\+380[0-9]{9}$/');
+        $validator->initialize($this->context);
+
+        $validator->validate('+380986412832', new PhoneNumber());
+        $this->assertNoViolation();
+    }
+
+    public function testCustomPatternFromConstructorRejectsNonMatching(): void
+    {
+        $validator = new PhoneNumberValidator(pattern: '/^\+380[0-9]{9}$/');
+        $validator->initialize($this->context);
+
+        $validator->validate('+12025550178', new PhoneNumber());
+
+        $this->assertEquals(1, $this->context->getViolations()->count());
+    }
+
+    public function testCustomPatternOnConstraintOverridesConstructor(): void
+    {
+        $validator = new PhoneNumberValidator(pattern: '/^\+380[0-9]{9}$/');
+        $validator->initialize($this->context);
+
+        $validator->validate('+12025550178', new PhoneNumber(pattern: PhoneNumberValidator::DEFAULT_PATTERN));
+
+        $this->assertNoViolation();
+    }
+
     protected function createValidator(): PhoneNumberValidator
     {
         return new PhoneNumberValidator();
