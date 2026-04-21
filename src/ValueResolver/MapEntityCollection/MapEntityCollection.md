@@ -74,11 +74,13 @@ If `null`, DTO properties are not processed.
 `array<string, string>` with rules for DTO property handling.
 
 - `MappingType::IGNORE` - ignore the property.
-- `MappingType::LIMIT` - sets `setMaxResults(...)` (default for paginator: `20`).
-- `MappingType::OFFSET` - sets `setFirstResult(...)`.
-- `MappingType::PAGE` - together with `LIMIT`, computes offset as `(page - 1) * limit`.
+- `MappingType::LIMIT` - sets `setMaxResults(...)` (default: `entity_collection.default_limit`).
+- `MappingType::OFFSET` - sets `setFirstResult(...)` directly; also triggers pagination so `LIMIT` defaults apply even without `PAGE`.
+- `MappingType::PAGE` - together with `LIMIT`, computes offset as `(page - 1) * limit`; defaults to page `1` when not provided.
 - if the key exists but the value is not a special mapping type, it behaves like a regular filter field.
 - if the key does not exist, the property is treated as an entity field and a `=`/`IN` condition is added.
+
+Pagination (`setMaxResults` / `setFirstResult`) is applied whenever at least one of the following is true: `PAGE` is mapped, `OFFSET` is mapped, or `returnPaginator` is `true`.
 
 ### `doctrineParameters`
 
@@ -106,7 +108,7 @@ Applied only when no ordering was already added earlier (for example, by filters
 
 ### `returnPaginator`
 
-- `true` (default): return `Paginator`;
+- `true` (default): return `Paginator`; also triggers default pagination when a `queryObject` is present but no `PAGE`/`OFFSET` mapping is defined — `LIMIT` defaults to `entity_collection.default_limit`, page defaults to `1`.
 - `false`: execute the query and return an `array` of results.
 
 ### `nameConverter`
@@ -119,4 +121,4 @@ Optional `NameConverterInterface` for converting field names in `defaultOrdering
 - Sorting direction constants:
   - `MapEntityCollection::ORDERING_ASC`
   - `MapEntityCollection::ORDERING_DESC`
-- When `PAGE` or `OFFSET` is used without an explicit `LIMIT` property, the bundle's `entity_collection.default_limit` configuration value is used as the limit (default: `20`). Configure it in `config/packages/symfony_extender.yaml`.
+- Pagination is triggered when any of the following is true: `PAGE` is mapped, `OFFSET` is mapped, or `returnPaginator` is `true` (with a `queryObject` present). In all these cases, if no explicit `LIMIT` property is mapped, the bundle's `entity_collection.default_limit` is used (default: `20`), and `page` defaults to `1`.
