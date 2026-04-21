@@ -23,6 +23,10 @@ final class SymfonyExtenderBundle extends AbstractBundle
     public const SECTION_IS_GRANTED_LISTENER = 'is_granted_listener';
     public const KEY_ENABLED = 'enabled';
 
+    public const SECTION_PHONE_NUMBER = 'phone_number';
+    public const KEY_CLEAN_STRING = 'clean_string';
+    public const KEY_PATTERN = 'pattern';
+
     public function configure(DefinitionConfigurator $definition): void
     {
         /** @var ArrayNodeDefinition $rootNode */
@@ -32,12 +36,17 @@ final class SymfonyExtenderBundle extends AbstractBundle
             ->integerNode(self::KEY_DEFAULT_LIMIT)->min(1)->defaultValue(self::VALUE_DEFAULT_LIMIT)
         ;
         $this->createNode($rootNode, self::SECTION_IS_GRANTED_LISTENER)->booleanNode(self::KEY_ENABLED)->defaultTrue();
+
+        $node = $this->createNode($rootNode, self::SECTION_PHONE_NUMBER);
+        $node->booleanNode(self::KEY_CLEAN_STRING)->defaultTrue();
+        $node->stringNode(self::KEY_PATTERN)->defaultValue(PhoneNumberValidator::DEFAULT_PATTERN);
     }
 
     /**
      * @param array{
      *     entity_collection: array{default_limit: int},
-     *     is_granted_listener: array{enabled: bool}
+     *     is_granted_listener: array{enabled: bool},
+     *     phone_number: array{clean_string: bool, pattern: string}
      *     } $config
      */
     public function loadExtension(array $config, ContainerConfigurator $container, ContainerBuilder $builder): void
@@ -58,15 +67,14 @@ final class SymfonyExtenderBundle extends AbstractBundle
                 ->autowire()
             ;
         }
-    }
 
-    public function build(ContainerBuilder $container): void
-    {
-        $container
-            ->register(PhoneNumberValidator::class)
-            ->addTag('validator.constraint_validator')
-            ->setAutoconfigured(true)
-            ->setAutowired(true)
+        $container->services()
+            ->set(PhoneNumberValidator::class)
+            ->tag('validator.constraint_validator')
+            ->autoconfigure()
+            ->autowire()
+            ->arg('$cleanString', $config[self::SECTION_PHONE_NUMBER][self::KEY_CLEAN_STRING])
+            ->arg('$pattern', $config[self::SECTION_PHONE_NUMBER][self::KEY_PATTERN])
         ;
     }
 

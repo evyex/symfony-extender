@@ -8,6 +8,13 @@ use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 class PhoneNumberValidator extends ConstraintValidator
 {
+    public const DEFAULT_PATTERN = '/^\+?[1-9][0-9]{9,14}$/';
+
+    public function __construct(
+        private readonly bool $cleanString = true,
+        private readonly string $pattern = self::DEFAULT_PATTERN,
+    ) {}
+
     public function validate(mixed $value, Constraint $constraint): void
     {
         if (null === $value) {
@@ -22,8 +29,10 @@ class PhoneNumberValidator extends ConstraintValidator
             throw new UnexpectedTypeException($value, 'string');
         }
 
-        $clearValue = str_replace([' ', '-', '(', ')'], '', $value);
-        if (!preg_match('/^\+?[1-9][0-9]{9,14}$/', $clearValue) || !$this->checkFirstChar($value)) {
+        $clearValue = $this->cleanString ? str_replace([' ', '-', '(', ')'], '', $value) : $value;
+        $pattern = $constraint->pattern ?? $this->pattern;
+
+        if (!preg_match($pattern, $clearValue) || !$this->checkFirstChar($value)) {
             $this->context->buildViolation($constraint->message)
                 ->setParameter('{{ value }}', $value)
                 ->setCode(PhoneNumber::INVALID_FORMAT_ERROR)

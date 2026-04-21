@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Evyex\SymfonyExtender\Tests\DependencyInjection;
 
 use Evyex\SymfonyExtender\SymfonyExtenderBundle;
+use Evyex\SymfonyExtender\Validator\PhoneNumberValidator;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
@@ -56,6 +57,33 @@ class SymfonyExtenderBundleConfigurationTest extends TestCase
         ]);
 
         $this->assertFalse($config['is_granted_listener']['enabled']);
+    }
+
+    public function testPhoneNumberDefaultsAreApplied(): void
+    {
+        $config = $this->processConfig([]);
+
+        $this->assertTrue($config['phone_number']['clean_string']);
+        $this->assertSame(PhoneNumberValidator::DEFAULT_PATTERN, $config['phone_number']['pattern']);
+    }
+
+    public function testPhoneNumberCleanStringCanBeDisabled(): void
+    {
+        $config = $this->processConfig([
+            'phone_number' => ['clean_string' => false],
+        ]);
+
+        $this->assertFalse($config['phone_number']['clean_string']);
+    }
+
+    public function testPhoneNumberCustomPatternIsApplied(): void
+    {
+        $pattern = '/^\+380[0-9]{9}$/';
+        $config = $this->processConfig([
+            'phone_number' => ['pattern' => $pattern],
+        ]);
+
+        $this->assertSame($pattern, $config['phone_number']['pattern']);
     }
 
     /**
