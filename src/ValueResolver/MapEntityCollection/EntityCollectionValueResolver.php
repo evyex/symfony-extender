@@ -118,8 +118,9 @@ class EntityCollectionValueResolver implements ValueResolverInterface
                 }
             }
 
-            if (null !== $page || null !== $offset) {
+            if (null !== $page || null !== $offset || $attribute->isReturnPaginator()) {
                 $limit ??= $this->defaultLimit;
+                $page ??= 1;
 
                 $queryBuilder
                     ->setMaxResults($limit)
