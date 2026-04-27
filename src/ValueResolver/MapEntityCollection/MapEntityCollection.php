@@ -16,11 +16,11 @@ class MapEntityCollection extends ValueResolver
     /**
      * @see MapEntityCollection.md Full usage guide and parameter reference.
      *
-     * @param class-string                                          $class
-     * @param class-string<DoctrineFilterInterface>[]               $filters
-     * @param array<string, self::ORDERING_ASC|self::ORDERING_DESC> $defaultOrdering
-     * @param array<string, mixed>                                  $doctrineParameters
-     * @param array<string, string>                                 $queryMapping
+     * @param class-string                                                                        $class
+     * @param class-string<DoctrineFilterInterface>[]                                             $filters
+     * @param array<string, MapEntityCollection::ORDERING_ASC|MapEntityCollection::ORDERING_DESC> $defaultOrdering
+     * @param array<string, mixed>                                                                $doctrineParameters
+     * @param array<string, MappingType|string>                                                   $queryMapping
      */
     public function __construct(
         private readonly string $class,
@@ -49,7 +49,7 @@ class MapEntityCollection extends ValueResolver
     }
 
     /**
-     * @return array<string, string>
+     * @return array<string, MappingType|string>
      */
     public function getQueryMapping(): array
     {
