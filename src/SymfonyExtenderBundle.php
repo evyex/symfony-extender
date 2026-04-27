@@ -6,6 +6,7 @@ namespace Evyex\SymfonyExtender;
 
 use Evyex\SymfonyExtender\Security\IsGrantedAttributeListenerDecorator;
 use Evyex\SymfonyExtender\Validator\PhoneNumberValidator;
+use Evyex\SymfonyExtender\ValueResolver\MapEntityCollection\DoctrineFilterInterface;
 use Evyex\SymfonyExtender\ValueResolver\MapEntityCollection\EntityCollectionValueResolver;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
@@ -26,6 +27,14 @@ final class SymfonyExtenderBundle extends AbstractBundle
     public const SECTION_PHONE_NUMBER = 'phone_number';
     public const KEY_CLEAN_STRING = 'clean_string';
     public const KEY_PATTERN = 'pattern';
+
+    public function build(ContainerBuilder $container): void
+    {
+        $container
+            ->registerForAutoconfiguration(DoctrineFilterInterface::class)
+            ->addTag(DoctrineFilterInterface::class)
+        ;
+    }
 
     public function configure(DefinitionConfigurator $definition): void
     {
