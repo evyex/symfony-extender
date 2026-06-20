@@ -371,6 +371,117 @@ class EntityCollectionValueResolverTest extends TestCase
         $resolver->mapEntityCollection($event);
     }
 
+    public function testFetchAssociationCreatesAndSelectsJoinForRootEntityAssociation(): void
+    {
+        $query = $this->createStub(Query::class);
+        $query->method('getResult')->willReturn([]);
+
+        $queryBuilder = $this->getMockBuilder(QueryBuilder::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['getDQLPart', 'getAllAliases', 'leftJoin', 'addSelect', 'getQuery'])
+            ->getMock()
+        ;
+        $queryBuilder->expects($this->once())->method('getDQLPart')->with('orderBy')->willReturn([]);
+        $queryBuilder
+            ->expects($this->exactly(2))
+            ->method('getAllAliases')
+            ->willReturn([EntityCollectionValueResolver::QUERY_ROOT_ALIAS])
+        ;
+        $expectedJoins = [
+            ['ecr.category', 'c1'],
+            ['ecr.images', 'i2'],
+        ];
+        $joinIndex = 0;
+        $queryBuilder
+            ->expects($this->exactly(2))
+            ->method('leftJoin')
+            ->willReturnCallback(function (string $join, string $alias) use (&$joinIndex, $expectedJoins, $queryBuilder): QueryBuilder {
+                $this->assertSame($expectedJoins[$joinIndex], [$join, $alias]);
+                ++$joinIndex;
+
+                return $queryBuilder;
+            })
+        ;
+        $expectedSelects = ['c1', 'i2'];
+        $selectIndex = 0;
+        $queryBuilder
+            ->expects($this->exactly(2))
+            ->method('addSelect')
+            ->willReturnCallback(function (string $select) use (&$selectIndex, $expectedSelects, $queryBuilder): QueryBuilder {
+                $this->assertSame($expectedSelects[$selectIndex], $select);
+                ++$selectIndex;
+
+                return $queryBuilder;
+            })
+        ;
+        $queryBuilder->method('getQuery')->willReturn($query);
+
+        $registry = $this->createStub(ManagerRegistry::class);
+        $registry
+            ->method('getManagerForClass')
+            ->willReturn($this->createEntityManagerWithRepositoryQueryBuilder($queryBuilder))
+        ;
+
+        $attribute = new MapEntityCollection(
+            class: \stdClass::class,
+            returnPaginator: false,
+            fetchAssociation: ['category', 'images'],
+        );
+
+        $resolver = $this->createResolver(
+            registry: $registry,
+            tokenStorage: $this->createStub(TokenStorageInterface::class),
+            container: $this->createStub(ContainerInterface::class),
+            propertyInfoExtractor: $this->createStub(PropertyInfoExtractorInterface::class),
+            propertyAccessor: $this->createStub(PropertyAccessorInterface::class),
+        );
+
+        $resolver->mapEntityCollection($this->createControllerArgumentsEvent([$attribute]));
+    }
+
+    public function testFetchAssociationSelectsExistingJoinAliasWithoutCreatingAnotherJoin(): void
+    {
+        $query = $this->createStub(Query::class);
+        $query->method('getResult')->willReturn([]);
+
+        $queryBuilder = $this->getMockBuilder(QueryBuilder::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['getDQLPart', 'getAllAliases', 'leftJoin', 'addSelect', 'getQuery'])
+            ->getMock()
+        ;
+        $queryBuilder->expects($this->once())->method('getDQLPart')->with('orderBy')->willReturn([]);
+        $queryBuilder
+            ->expects($this->once())
+            ->method('getAllAliases')
+            ->willReturn([EntityCollectionValueResolver::QUERY_ROOT_ALIAS, 'category'])
+        ;
+        $queryBuilder->expects($this->never())->method('leftJoin');
+        $queryBuilder->expects($this->once())->method('addSelect')->with('category')->willReturnSelf();
+        $queryBuilder->method('getQuery')->willReturn($query);
+
+        $registry = $this->createStub(ManagerRegistry::class);
+        $registry
+            ->method('getManagerForClass')
+            ->willReturn($this->createEntityManagerWithRepositoryQueryBuilder($queryBuilder))
+        ;
+
+        $attribute = new MapEntityCollection(
+            class: \stdClass::class,
+            returnPaginator: false,
+            fetchAssociation: ['category'],
+        );
+
+        $resolver = $this->createResolver(
+            registry: $registry,
+            tokenStorage: $this->createStub(TokenStorageInterface::class),
+            container: $this->createStub(ContainerInterface::class),
+            propertyInfoExtractor: $this->createStub(PropertyInfoExtractorInterface::class),
+            propertyAccessor: $this->createStub(PropertyAccessorInterface::class),
+        );
+
+        $resolver->mapEntityCollection($this->createControllerArgumentsEvent([$attribute]));
+    }
+
     public function testUsesDefaultLimitWhenPageProvidedWithoutExplicitLimit(): void
     {
         $query = $this->createStub(Query::class);
