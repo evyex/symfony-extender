@@ -46,6 +46,7 @@ class MapEntityCollectionTest extends TestCase
         $this->assertSame([], $attribute->getDefaultOrdering());
         $this->assertTrue($attribute->isReturnPaginator());
         $this->assertNull($attribute->getNameConverter());
+        $this->assertSame([], $attribute->getFetchAssociation());
     }
 
     public function testCustomConfiguration(): void
@@ -61,6 +62,7 @@ class MapEntityCollectionTest extends TestCase
             defaultOrdering: ['createdAt' => MapEntityCollection::ORDERING_DESC],
             returnPaginator: false,
             nameConverter: $nameConverter,
+            fetchAssociation: ['customer', 'items'],
         );
 
         $this->assertSame('App\Entity\Order', $attribute->getClass());
@@ -71,6 +73,7 @@ class MapEntityCollectionTest extends TestCase
         $this->assertSame(['createdAt' => MapEntityCollection::ORDERING_DESC], $attribute->getDefaultOrdering());
         $this->assertFalse($attribute->isReturnPaginator());
         $this->assertSame($nameConverter, $attribute->getNameConverter());
+        $this->assertSame(['customer', 'items'], $attribute->getFetchAssociation());
     }
 }
 
