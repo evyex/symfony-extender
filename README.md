@@ -77,13 +77,16 @@ use Doctrine\ORM\Tools\Pagination\Paginator;
 public function list(
     #[MapEntityCollection(
         class: Product::class,
-        defaultOrdering: ['createdAt' => 'DESC']
+        defaultOrdering: ['createdAt' => MapEntityCollection::ORDERING_DESC],
+        fetchAssociation: ['category', 'images'],
     )]
     Paginator $products
 ): Response {
     // ...
 }
 ```
+
+`fetchAssociation` explicitly loads and hydrates related entities or collections in the same query. Each value may be either an association property of the root entity, such as `category`, or an alias of a join previously added by a custom Doctrine filter.
 
 ### 3. IsGranted Attribute Decorator
 

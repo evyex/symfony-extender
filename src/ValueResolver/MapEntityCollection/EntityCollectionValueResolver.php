@@ -141,6 +141,20 @@ class EntityCollectionValueResolver implements ValueResolverInterface
             }
         }
 
+        $index = 1;
+        foreach ($attribute->getFetchAssociation() as $aliasOrProperty) {
+            if (in_array($aliasOrProperty, $queryBuilder->getAllAliases(), true)) {
+                $queryBuilder->addSelect($aliasOrProperty);
+            } else {
+                $alias = strtolower(substr($aliasOrProperty, 0, 1)).$index++;
+
+                $queryBuilder
+                    ->leftJoin(sprintf('%s.%s', self::QUERY_ROOT_ALIAS, $aliasOrProperty), $alias)
+                    ->addSelect($alias)
+                ;
+            }
+        }
+
         return $attribute->isReturnPaginator() ? new Paginator($queryBuilder) : (array) $queryBuilder->getQuery()->getResult();
     }
 
