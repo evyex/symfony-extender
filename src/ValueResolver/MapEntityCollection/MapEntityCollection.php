@@ -14,13 +14,14 @@ class MapEntityCollection extends ValueResolver
     public const ORDERING_DESC = 'DESC';
 
     /**
-     * @see MapEntityCollection.md Full usage guide and parameter reference.
+     * @param class-string                                          $class
+     * @param array<string, MappingType|string>                     $queryMapping
+     * @param array<string, mixed>                                  $doctrineParameters
+     * @param class-string<DoctrineFilterInterface>[]               $filters
+     * @param array<string, self::ORDERING_ASC|self::ORDERING_DESC> $defaultOrdering
+     * @param string[]                                              $fetchAssociation
      *
-     * @param class-string                                                                        $class
-     * @param class-string<DoctrineFilterInterface>[]                                             $filters
-     * @param array<string, MapEntityCollection::ORDERING_ASC|MapEntityCollection::ORDERING_DESC> $defaultOrdering
-     * @param array<string, mixed>                                                                $doctrineParameters
-     * @param array<string, MappingType|string>                                                   $queryMapping
+     * @see MapEntityCollection.md Full usage guide and parameter reference.
      */
     public function __construct(
         private readonly string $class,
@@ -31,6 +32,7 @@ class MapEntityCollection extends ValueResolver
         private readonly array $defaultOrdering = [],
         private readonly bool $returnPaginator = true,
         private readonly ?NameConverterInterface $nameConverter = null,
+        private readonly array $fetchAssociation = [],
     ) {
         parent::__construct(EntityCollectionValueResolver::class);
     }
@@ -88,5 +90,13 @@ class MapEntityCollection extends ValueResolver
     public function getNameConverter(): ?NameConverterInterface
     {
         return $this->nameConverter;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getFetchAssociation(): array
+    {
+        return $this->fetchAssociation;
     }
 }

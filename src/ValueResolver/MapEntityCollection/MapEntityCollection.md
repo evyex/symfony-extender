@@ -17,6 +17,7 @@ public function list(
     #[MapEntityCollection(
         class: Product::class,
         defaultOrdering: ['createdAt' => MapEntityCollection::ORDERING_DESC],
+        fetchAssociation: ['category', 'images'],
     )]
     Paginator $products,
 ): Response {
@@ -114,6 +115,25 @@ Applied only when no ordering was already added earlier (for example, by filters
 ### `nameConverter`
 
 Optional `NameConverterInterface` for converting field names in `defaultOrdering` (for example, from request camelCase to entity snake_case).
+
+### `fetchAssociation`
+
+`string[]` containing associations that must be explicitly loaded and hydrated together with the root entity.
+
+An item may be:
+
+- an association property of the root entity, for example `category` or `images`; the resolver creates a `LEFT JOIN` and adds the generated join alias to `SELECT`;
+- an existing join alias previously added to the query by a custom `DoctrineFilterInterface`; the resolver adds that alias to `SELECT`.
+
+```php
+#[MapEntityCollection(
+    class: Product::class,
+    fetchAssociation: ['category', 'images'],
+)]
+Paginator $products
+```
+
+This avoids additional lazy-loading queries when the related objects are accessed. Association properties are resolved relative to the root entity alias, so nested paths such as `category.parent` are not supported directly. Add the nested join in a custom filter and pass its alias to `fetchAssociation` instead.
 
 ## Notes
 
