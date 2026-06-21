@@ -5,18 +5,18 @@
     "license": "MIT",
     "require": {
         "php": "^8.4",
-        "symfony/validator": "^8.0",
-        "symfony/http-kernel": "^8.0",
-        "symfony/dependency-injection": "^8.0",
+        "symfony/validator": "8.0.*",
+        "symfony/http-kernel": "8.0.*",
+        "symfony/dependency-injection": "8.0.*",
         "doctrine/orm": "^3.5.4",
-        "symfony/serializer": "^8.0",
-        "symfony/expression-language": "^8.0",
-        "symfony/property-access": "^8.0",
-        "symfony/security-core": "^8.0",
-        "symfony/security-http": "^8.0",
-        "symfony/config": "^8.0",
-        "symfony/property-info": "^8.0",
-        "symfony/process": "^8.0.5"
+        "symfony/serializer": "8.0.*",
+        "symfony/expression-language": "8.0.*",
+        "symfony/property-access": "8.0.*",
+        "symfony/security-core": "8.0.*",
+        "symfony/security-http": "8.0.*",
+        "symfony/config": "8.0.*",
+        "symfony/property-info": "8.0.*",
+        "symfony/process": "~8.0.5"
     },
     "autoload": {
         "psr-4": {
@@ -38,9 +38,9 @@
         "phpunit/phpunit": ">=12.5.8|^13.0",
         "phpstan/phpstan": "^2.1",
         "friendsofphp/php-cs-fixer": "^3.92",
-        "symfony/framework-bundle": "^8.0",
-        "symfony/security-bundle": "^8.0",
+        "symfony/framework-bundle": "8.0.*",
+        "symfony/security-bundle": "8.0.*",
         "doctrine/doctrine-bundle": "^3.1",
-        "symfony/var-exporter": "^8.0"
+        "symfony/var-exporter": "8.0.*"
     }
 }
