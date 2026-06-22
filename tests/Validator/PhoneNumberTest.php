@@ -6,6 +6,7 @@ namespace Evyex\SymfonyExtender\Tests\Validator;
 
 use Evyex\SymfonyExtender\Validator\PhoneNumber;
 use Evyex\SymfonyExtender\Validator\PhoneNumberValidator;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestWith;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
@@ -14,6 +15,7 @@ use Symfony\Component\Validator\Test\ConstraintValidatorTestCase;
 /**
  * @internal
  */
+#[AllowMockObjectsWithoutExpectations]
 #[CoversClass(PhoneNumberValidator::class)]
 #[CoversClass(PhoneNumber::class)]
 class PhoneNumberTest extends ConstraintValidatorTestCase

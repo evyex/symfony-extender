@@ -10,6 +10,7 @@ use Evyex\SymfonyExtender\ValueResolver\MapEntityCollection\DoctrineFilterInterf
 use Evyex\SymfonyExtender\ValueResolver\MapEntityCollection\EntityCollectionValueResolver;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
+use Symfony\Component\Config\Definition\Builder\NodeParentInterface;
 use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
@@ -38,7 +39,7 @@ final class SymfonyExtenderBundle extends AbstractBundle
 
     public function configure(DefinitionConfigurator $definition): void
     {
-        /** @var ArrayNodeDefinition $rootNode */
+        /** @var ArrayNodeDefinition<NodeParentInterface> $rootNode */
         $rootNode = $definition->rootNode();
 
         $this->createNode($rootNode, self::SECTION_ENTITY_COLLECTION)
@@ -87,6 +88,13 @@ final class SymfonyExtenderBundle extends AbstractBundle
         ;
     }
 
+    /**
+     * @template TParent of NodeParentInterface|null
+     *
+     * @param ArrayNodeDefinition<TParent> $rootNode
+     *
+     * @return NodeBuilder<ArrayNodeDefinition<NodeBuilder<ArrayNodeDefinition<TParent>>>>
+     */
     private function createNode(ArrayNodeDefinition $rootNode, string $name): NodeBuilder
     {
         return $rootNode->children()->arrayNode($name)->addDefaultsIfNotSet()->children();
