@@ -6,7 +6,7 @@
     "require": {
         "php": "^8.2",
         "symfony/validator": "^7.4",
-        "symfony/http-kernel": "^7.4",
+        "symfony/http-kernel": "^7.4.12",
         "symfony/dependency-injection": "^7.4",
         "doctrine/dbal": "^3.10|^4",
         "doctrine/orm": "^3",
@@ -14,10 +14,13 @@
         "symfony/expression-language": "^7.4",
         "symfony/property-access": "^7.4",
         "symfony/security-core": "^7.4",
-        "symfony/security-http": "^7.4",
+        "symfony/security-http": "^7.4.13",
         "symfony/config": "^7.4",
         "symfony/property-info": "^7.4",
-        "symfony/process": "^7.4.5"
+        "symfony/process": "^7.4.5",
+        "symfony/http-foundation": "^7.4.13",
+        "symfony/routing": "^7.4.13",
+        "symfony/cache": "^7.4.12"
     },
     "autoload": {
         "psr-4": {
