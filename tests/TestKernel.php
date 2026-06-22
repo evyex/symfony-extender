@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Evyex\SymfonyExtender\Tests;
 
 use Doctrine\Bundle\DoctrineBundle\DoctrineBundle;
+use Doctrine\ORM\Configuration as ORMConfiguration;
 use Evyex\SymfonyExtender\SymfonyExtenderBundle;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
@@ -47,6 +48,9 @@ class TestKernel extends Kernel
                         'php_errors' => [
                             'log' => true,
                         ],
+                        'property_info' => [
+                            'with_constructor_extractor' => false,
+                        ],
                     ]
                 );
 
@@ -59,6 +63,11 @@ class TestKernel extends Kernel
                         ],
                         'orm' => [
                             'auto_mapping' => false,
+                            'controller_resolver' => ['auto_mapping' => false],
+                            ...(
+                                method_exists(ORMConfiguration::class, 'enableNativeLazyObjects')
+                            ? ['enable_native_lazy_objects' => PHP_VERSION_ID >= 80400] : []
+                            ),
                         ],
                     ]
                 );
