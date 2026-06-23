@@ -71,9 +71,7 @@ class PhoneNumberTest extends ConstraintValidatorTestCase
     public function testCleanStringDisabledRejectsFormattedNumber(string $data): void
     {
         $validator = new PhoneNumberValidator(cleanString: false);
-        $validator->initialize($this->context);
-
-        $validator->validate($data, new PhoneNumber());
+        $validator->validateInContext($data, new PhoneNumber(), $this->context);
 
         $this->assertEquals(1, $this->context->getViolations()->count());
     }
@@ -81,9 +79,7 @@ class PhoneNumberTest extends ConstraintValidatorTestCase
     public function testCleanStringDisabledAcceptsPlainNumber(): void
     {
         $validator = new PhoneNumberValidator(cleanString: false);
-        $validator->initialize($this->context);
-
-        $validator->validate('+380986412832', new PhoneNumber());
+        $validator->validateInContext('+380986412832', new PhoneNumber(), $this->context);
 
         $this->assertNoViolation();
     }
@@ -91,18 +87,14 @@ class PhoneNumberTest extends ConstraintValidatorTestCase
     public function testCustomPatternFromConstructor(): void
     {
         $validator = new PhoneNumberValidator(pattern: '/^\+380[0-9]{9}$/');
-        $validator->initialize($this->context);
-
-        $validator->validate('+380986412832', new PhoneNumber());
+        $validator->validateInContext('+380986412832', new PhoneNumber(), $this->context);
         $this->assertNoViolation();
     }
 
     public function testCustomPatternFromConstructorRejectsNonMatching(): void
     {
         $validator = new PhoneNumberValidator(pattern: '/^\+380[0-9]{9}$/');
-        $validator->initialize($this->context);
-
-        $validator->validate('+12025550178', new PhoneNumber());
+        $validator->validateInContext('+12025550178', new PhoneNumber(), $this->context);
 
         $this->assertEquals(1, $this->context->getViolations()->count());
     }
@@ -110,9 +102,11 @@ class PhoneNumberTest extends ConstraintValidatorTestCase
     public function testCustomPatternOnConstraintOverridesConstructor(): void
     {
         $validator = new PhoneNumberValidator(pattern: '/^\+380[0-9]{9}$/');
-        $validator->initialize($this->context);
-
-        $validator->validate('+12025550178', new PhoneNumber(pattern: PhoneNumberValidator::DEFAULT_PATTERN));
+        $validator->validateInContext(
+            '+12025550178',
+            new PhoneNumber(pattern: PhoneNumberValidator::DEFAULT_PATTERN),
+            $this->context,
+        );
 
         $this->assertNoViolation();
     }
