@@ -27,8 +27,6 @@ You can configure the bundle in `config/packages/symfony_extender.yaml`:
 symfony_extender:
     entity_collection:
         default_limit: 20      # Default paginator limit when no explicit limit is provided (min: 1)
-    is_granted_listener:
-        enabled: true          # Set to false to disable grant execution after Map** resolving
     phone_number:
         clean_string: true     # Strip spaces, hyphens, and parentheses before validation
         pattern: '/^\+?[1-9][0-9]{9,14}$/'  # Regex used to validate the phone number
@@ -87,14 +85,6 @@ public function list(
 ```
 
 `fetchAssociation` explicitly loads and hydrates related entities or collections in the same query. Each value may be either an association property of the root entity, such as `category`, or an alias of a join previously added by a custom Doctrine filter.
-
-### 3. IsGranted Attribute Decorator
-
-Decorates the default Symfony `controller.is_granted_attribute_listener` to ensure it runs at the correct priority when used with other argument resolvers.
-
-This works transparently in the background, ensuring that `#[IsGranted]` attributes on controller arguments are handled correctly before the value resolvers are called.
-
-Can be disabled via configuration if the decorator conflicts with your setup (see [Configuration](#configuration)).
 
 ## Quality Assurance
 

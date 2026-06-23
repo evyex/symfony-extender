@@ -51,6 +51,8 @@ class EntityCollectionValueResolver implements ValueResolverInterface
         foreach ($arguments as $key => $argument) {
             if ($argument instanceof MapEntityCollection) {
                 $arguments[$key] = $this->doResolve($argument, $event);
+
+                /** @var list<mixed> $arguments */
                 $event->setArguments($arguments);
 
                 break;

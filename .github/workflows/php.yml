@@ -2,7 +2,7 @@ name: PHP Composer
 
 on:
   pull_request:
-    branches: [ "symfony-8.0" ]
+    branches: [ "symfony-8.1" ]
 
 permissions:
   contents: read
