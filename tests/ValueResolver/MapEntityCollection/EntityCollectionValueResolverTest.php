@@ -16,11 +16,13 @@ use Evyex\SymfonyExtender\ValueResolver\MapEntityCollection\EntityCollectionValu
 use Evyex\SymfonyExtender\ValueResolver\MapEntityCollection\MapEntityCollection;
 use Evyex\SymfonyExtender\ValueResolver\MapEntityCollection\MappingType;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 use Symfony\Component\HttpKernel\Event\ControllerArgumentsEvent;
+use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 use Symfony\Component\PropertyInfo\PropertyInfoExtractorInterface;
@@ -107,9 +109,11 @@ class EntityCollectionValueResolverTest extends TestCase
 
         $queryBuilder = $this->getMockBuilder(QueryBuilder::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(['getDQLPart', 'getQuery'])
+            ->onlyMethods(['setMaxResults', 'setFirstResult', 'getDQLPart', 'getQuery'])
             ->getMock()
         ;
+        $queryBuilder->expects($this->once())->method('setMaxResults')->with(20)->willReturnSelf();
+        $queryBuilder->expects($this->once())->method('setFirstResult')->with(0)->willReturnSelf();
         $queryBuilder->expects($this->once())->method('getDQLPart')->with('orderBy')->willReturn(['existing_order']);
         $queryBuilder->method('getQuery')->willReturn($query);
 
@@ -650,6 +654,117 @@ class EntityCollectionValueResolverTest extends TestCase
         $resolver->mapEntityCollection($event);
     }
 
+    public function testExplicitOffsetTakesPrecedenceOverPageOffset(): void
+    {
+        $query = $this->createStub(Query::class);
+        $query->method('getResult')->willReturn([]);
+
+        $queryBuilder = $this->getMockBuilder(QueryBuilder::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['setMaxResults', 'setFirstResult', 'getDQLPart', 'getQuery'])
+            ->getMock()
+        ;
+        $queryBuilder->expects($this->once())->method('setMaxResults')->with(20)->willReturnSelf();
+        $queryBuilder->expects($this->once())->method('setFirstResult')->with(5)->willReturnSelf();
+        $queryBuilder->expects($this->once())->method('getDQLPart')->with('orderBy')->willReturn(['existing_order']);
+        $queryBuilder->method('getQuery')->willReturn($query);
+
+        $registry = $this->createMock(ManagerRegistry::class);
+        $registry
+            ->expects($this->once())
+            ->method('getManagerForClass')
+            ->willReturn($this->createEntityManagerWithRepositoryQueryBuilder($queryBuilder))
+        ;
+
+        $propertyInfoExtractor = $this->createMock(PropertyInfoExtractorInterface::class);
+        $propertyInfoExtractor->expects($this->once())->method('getProperties')->willReturn(['page', 'offset', 'limit']);
+
+        $propertyAccessor = $this->createStub(PropertyAccessorInterface::class);
+        $propertyAccessor->method('getValue')->willReturnCallback(static fn (object $o, string $p) => $o->{$p});
+
+        $queryInput = new class {
+            public int $page = 3;
+            public int $offset = 5;
+            public int $limit = 20;
+        };
+        $attribute = new MapEntityCollection(
+            class: 'App\Entity\Product',
+            queryObject: 'query',
+            queryMapping: [
+                'page' => MappingType::PAGE,
+                'offset' => MappingType::OFFSET,
+                'limit' => MappingType::LIMIT,
+            ],
+            returnPaginator: false,
+        );
+        $event = $this->createControllerArgumentsEvent(
+            arguments: [$attribute, $queryInput],
+            controller: static function (array $collection, object $query): void {},
+        );
+
+        $resolver = $this->createResolver(
+            registry: $registry,
+            tokenStorage: $this->createStub(TokenStorageInterface::class),
+            container: $this->createStub(ContainerInterface::class),
+            propertyInfoExtractor: $propertyInfoExtractor,
+            propertyAccessor: $propertyAccessor,
+        );
+
+        $resolver->mapEntityCollection($event);
+    }
+
+    #[DataProvider('invalidPaginationProvider')]
+    public function testRejectsInvalidPaginationParameters(
+        string $property,
+        MappingType $mappingType,
+        int $value,
+        string $expectedMessage,
+    ): void {
+        $queryBuilder = $this->getMockBuilder(QueryBuilder::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['getDQLPart'])
+            ->getMock()
+        ;
+        $queryBuilder->expects($this->never())->method('getDQLPart');
+
+        $registry = $this->createMock(ManagerRegistry::class);
+        $registry
+            ->expects($this->once())
+            ->method('getManagerForClass')
+            ->willReturn($this->createEntityManagerWithRepositoryQueryBuilder($queryBuilder))
+        ;
+
+        $propertyInfoExtractor = $this->createMock(PropertyInfoExtractorInterface::class);
+        $propertyInfoExtractor->expects($this->once())->method('getProperties')->willReturn([$property]);
+
+        $propertyAccessor = $this->createStub(PropertyAccessorInterface::class);
+        $propertyAccessor->method('getValue')->willReturn($value);
+
+        $attribute = new MapEntityCollection(
+            class: 'App\Entity\Product',
+            queryObject: 'query',
+            queryMapping: [$property => $mappingType],
+            returnPaginator: false,
+        );
+        $event = $this->createControllerArgumentsEvent(
+            arguments: [$attribute, new \stdClass()],
+            controller: static function (array $collection, object $query): void {},
+        );
+
+        $resolver = $this->createResolver(
+            registry: $registry,
+            tokenStorage: $this->createStub(TokenStorageInterface::class),
+            container: $this->createStub(ContainerInterface::class),
+            propertyInfoExtractor: $propertyInfoExtractor,
+            propertyAccessor: $propertyAccessor,
+        );
+
+        $this->expectException(UnprocessableEntityHttpException::class);
+        $this->expectExceptionMessage($expectedMessage);
+
+        $resolver->mapEntityCollection($event);
+    }
+
     public function testAppliesDefaultPaginationWhenReturnPaginatorTrueWithQueryObject(): void
     {
         $query = $this->createStub(Query::class);
@@ -697,6 +812,16 @@ class EntityCollectionValueResolverTest extends TestCase
         $resolver->mapEntityCollection($event);
 
         $this->assertInstanceOf(Paginator::class, $event->getArguments()[0]);
+    }
+
+    /**
+     * @return iterable<string, array{string, MappingType, int, string}>
+     */
+    public static function invalidPaginationProvider(): iterable
+    {
+        yield 'zero page' => ['page', MappingType::PAGE, 0, 'Page must be greater than 0'];
+        yield 'zero limit' => ['limit', MappingType::LIMIT, 0, 'Limit must be greater than 0'];
+        yield 'negative offset' => ['offset', MappingType::OFFSET, -1, 'Offset must be greater than or equal to 0'];
     }
 
     private function createResolver(
