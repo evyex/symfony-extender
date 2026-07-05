@@ -765,6 +765,18 @@ class EntityCollectionValueResolverTest extends TestCase
         $resolver->mapEntityCollection($event);
     }
 
+    /**
+     * @return iterable<string, array{string, MappingType, int, string}>
+     */
+    public static function invalidPaginationProvider(): iterable
+    {
+        yield 'zero page' => ['page', MappingType::PAGE, 0, 'Page must be greater than 0'];
+
+        yield 'zero limit' => ['limit', MappingType::LIMIT, 0, 'Limit must be greater than 0'];
+
+        yield 'negative offset' => ['offset', MappingType::OFFSET, -1, 'Offset must be greater than or equal to 0'];
+    }
+
     public function testAppliesDefaultPaginationWhenReturnPaginatorTrueWithQueryObject(): void
     {
         $query = $this->createStub(Query::class);
@@ -812,16 +824,6 @@ class EntityCollectionValueResolverTest extends TestCase
         $resolver->mapEntityCollection($event);
 
         $this->assertInstanceOf(Paginator::class, $event->getArguments()[0]);
-    }
-
-    /**
-     * @return iterable<string, array{string, MappingType, int, string}>
-     */
-    public static function invalidPaginationProvider(): iterable
-    {
-        yield 'zero page' => ['page', MappingType::PAGE, 0, 'Page must be greater than 0'];
-        yield 'zero limit' => ['limit', MappingType::LIMIT, 0, 'Limit must be greater than 0'];
-        yield 'negative offset' => ['offset', MappingType::OFFSET, -1, 'Offset must be greater than or equal to 0'];
     }
 
     private function createResolver(
