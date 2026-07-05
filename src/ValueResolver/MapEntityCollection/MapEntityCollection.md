@@ -74,14 +74,21 @@ If `null`, DTO properties are not processed.
 
 `array<string, string>` with rules for DTO property handling.
 
-- `MappingType::IGNORE` - ignore the property.
-- `MappingType::LIMIT` - sets `setMaxResults(...)` (default: `entity_collection.default_limit`).
-- `MappingType::OFFSET` - sets `setFirstResult(...)` directly; also triggers pagination so `LIMIT` defaults apply even without `PAGE`.
-- `MappingType::PAGE` - together with `LIMIT`, computes offset as `(page - 1) * limit`; defaults to page `1` when not provided.
-- if the key exists but the value is not a special mapping type, it behaves like a regular filter field.
-- if the key does not exist, the property is treated as an entity field and a `=`/`IN` condition is added.
+Use the pagination mapping types for DTO fields that should control the result window:
 
-Pagination (`setMaxResults` / `setFirstResult`) is applied whenever at least one of the following is true: `PAGE` is mapped, `OFFSET` is mapped, or `returnPaginator` is `true`.
+- `MappingType::LIMIT` marks a field as the page size.
+- `MappingType::PAGE` marks a field as a one-based page number. The resolver calculates the offset as `(page - 1) * limit`.
+- `MappingType::OFFSET` marks a field as an explicit zero-based offset. When both `PAGE` and `OFFSET` are present, the explicit offset wins.
+
+If pagination is enabled but no limit is provided by the DTO, `entity_collection.default_limit` is used. Pagination is enabled by any `LIMIT`, `PAGE`, or `OFFSET` mapping, and also by `returnPaginator: true`.
+
+Pagination values must be valid before the query is executed: `page` and `limit` must be greater than `0`, and `offset` must be greater than or equal to `0`.
+
+For non-pagination fields:
+
+- `MappingType::IGNORE` leaves the DTO property out of the query.
+- a non-special mapping value makes the property behave like a regular filter field.
+- an unmapped property is treated as an entity field and added as a `=` or `IN` condition.
 
 ### `doctrineParameters`
 
@@ -109,7 +116,7 @@ Applied only when no ordering was already added earlier (for example, by filters
 
 ### `returnPaginator`
 
-- `true` (default): return `Paginator`; also triggers default pagination when a `queryObject` is present but no `PAGE`/`OFFSET` mapping is defined — `LIMIT` defaults to `entity_collection.default_limit`, page defaults to `1`.
+- `true` (default): return `Paginator`; also triggers default pagination when no `LIMIT`/`PAGE`/`OFFSET` mapping is provided — `LIMIT` defaults to `entity_collection.default_limit`, page defaults to `1`.
 - `false`: execute the query and return an `array` of results.
 
 ### `nameConverter`
@@ -141,4 +148,4 @@ This avoids additional lazy-loading queries when the related objects are accesse
 - Sorting direction constants:
   - `MapEntityCollection::ORDERING_ASC`
   - `MapEntityCollection::ORDERING_DESC`
-- Pagination is triggered when any of the following is true: `PAGE` is mapped, `OFFSET` is mapped, or `returnPaginator` is `true` (with a `queryObject` present). In all these cases, if no explicit `LIMIT` property is mapped, the bundle's `entity_collection.default_limit` is used (default: `20`), and `page` defaults to `1`.
+- Pagination is triggered when any of the following is true: `LIMIT` is mapped, `PAGE` is mapped, `OFFSET` is mapped, or `returnPaginator` is `true`. In all these cases, if no explicit `LIMIT` property is mapped, the bundle's `entity_collection.default_limit` is used (default: `20`), and `page` defaults to `1`.
