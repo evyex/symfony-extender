@@ -86,10 +86,11 @@ class EntityCollectionValueResolver implements ValueResolverInterface
             $queryFilter->applyFilter($queryBuilder, $attribute, $event->getRequest(), $queryStringObject);
         }
 
+        $limit = null;
+        $offset = null;
+        $page = null;
+
         if ($queryStringObject) {
-            $limit = null;
-            $offset = null;
-            $page = null;
             foreach ($this->propertyInfoExtractor->getProperties($queryStringObject::class) ?? [] as $property) {
                 $propertyMapping = $attribute->getQueryMapping()[$property] ?? null;
                 $value = $this->propertyAccessor->getValue($queryStringObject, $property);
@@ -117,16 +118,23 @@ class EntityCollectionValueResolver implements ValueResolverInterface
                         $this->addCondition($queryBuilder, $property, $value);
                 }
             }
+        }
 
-            if (null !== $page || null !== $offset || $attribute->isReturnPaginator()) {
-                $limit ??= $this->defaultLimit;
-                $page ??= 1;
-
-                $queryBuilder
-                    ->setMaxResults($limit)
-                    ->setFirstResult($offset ?? ($page - 1) * $limit)
-                ;
+        if (null !== $page || null !== $offset || null !== $limit || $attribute->isReturnPaginator()) {
+            if (null !== $page && $page < 1) {
+                throw new UnprocessableEntityHttpException('Page must be greater than 0');
             }
+            if (null !== $limit && $limit < 1) {
+                throw new UnprocessableEntityHttpException('Limit must be greater than 0');
+            }
+            if (null !== $offset && $offset < 0) {
+                throw new UnprocessableEntityHttpException('Offset must be greater than or equal to 0');
+            }
+
+            $limit ??= $this->defaultLimit;
+            $offset ??= (($page ?? 1) - 1) * $limit;
+
+            $queryBuilder->setMaxResults($limit)->setFirstResult($offset);
         }
 
         if (!$queryBuilder->getDQLPart('orderBy')) {
