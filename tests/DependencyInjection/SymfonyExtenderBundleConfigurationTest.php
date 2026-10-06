@@ -43,6 +43,22 @@ class SymfonyExtenderBundleConfigurationTest extends TestCase
         ]);
     }
 
+    public function testIsGrantedListenerEnabledByDefault(): void
+    {
+        $config = $this->processConfig([]);
+
+        $this->assertTrue($config['is_granted_listener']['enabled']);
+    }
+
+    public function testIsGrantedListenerCanBeDisabled(): void
+    {
+        $config = $this->processConfig([
+            'is_granted_listener' => ['enabled' => false],
+        ]);
+
+        $this->assertFalse($config['is_granted_listener']['enabled']);
+    }
+
     public function testPhoneNumberDefaultsAreApplied(): void
     {
         $config = $this->processConfig([]);

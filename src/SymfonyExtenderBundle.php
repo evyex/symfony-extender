@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Evyex\SymfonyExtender;
 
+use Evyex\SymfonyExtender\Security\IsGrantedAttributeListenerDecorator;
 use Evyex\SymfonyExtender\Validator\PhoneNumberValidator;
 use Evyex\SymfonyExtender\ValueResolver\MapEntityCollection\DoctrineFilterInterface;
 use Evyex\SymfonyExtender\ValueResolver\MapEntityCollection\EntityCollectionValueResolver;
@@ -14,11 +15,16 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
 
+use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
+
 final class SymfonyExtenderBundle extends AbstractBundle
 {
     public const SECTION_ENTITY_COLLECTION = 'entity_collection';
     public const KEY_DEFAULT_LIMIT = 'default_limit';
     public const VALUE_DEFAULT_LIMIT = 20;
+
+    public const SECTION_IS_GRANTED_LISTENER = 'is_granted_listener';
+    public const KEY_ENABLED = 'enabled';
 
     public const SECTION_PHONE_NUMBER = 'phone_number';
     public const KEY_CLEAN_STRING = 'clean_string';
@@ -40,6 +46,7 @@ final class SymfonyExtenderBundle extends AbstractBundle
         $this->createNode($rootNode, self::SECTION_ENTITY_COLLECTION)
             ->integerNode(self::KEY_DEFAULT_LIMIT)->min(1)->defaultValue(self::VALUE_DEFAULT_LIMIT)
         ;
+        $this->createNode($rootNode, self::SECTION_IS_GRANTED_LISTENER)->booleanNode(self::KEY_ENABLED)->defaultTrue();
 
         $node = $this->createNode($rootNode, self::SECTION_PHONE_NUMBER);
         $node->booleanNode(self::KEY_CLEAN_STRING)->defaultTrue();
@@ -62,6 +69,16 @@ final class SymfonyExtenderBundle extends AbstractBundle
             ->autowire()
             ->arg('$defaultLimit', $config[self::SECTION_ENTITY_COLLECTION][self::KEY_DEFAULT_LIMIT])
         ;
+
+        if ($config[self::SECTION_IS_GRANTED_LISTENER][self::KEY_ENABLED]) {
+            $configurator->services()
+                ->set(IsGrantedAttributeListenerDecorator::class)
+                ->tag('security.listener.is_granted_attribute')
+                ->autoconfigure()
+                ->autowire()
+                ->arg('$expressionLanguage', service('security.is_granted_attribute_expression_language')->nullOnInvalid())
+            ;
+        }
 
         $configurator->services()
             ->set(PhoneNumberValidator::class)
